@@ -33,14 +33,14 @@ const ShoeCard = ({
 
   return (
     <Link href={`/shoe/${slug}`}>
-      <Wrapper>
+      <Wrapper variant={variant}>
         <ImageWrapper>
           <Image alt="" src={imageSrc} />
         </ImageWrapper>
         <Spacer size={12} />
         <Row>
           <Name>{name}</Name>
-          <Price>{formatPrice(price)}</Price>
+          <Price sale={typeof salePrice === "number" ? formatPrice(salePrice) : null}>{formatPrice(price)}</Price>
         </Row>
         <Row>
           <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
@@ -55,16 +55,43 @@ const Link = styled.a`
   color: inherit;
 `;
 
-const Wrapper = styled.article``;
+const Wrapper = styled.article`
+	position: relative;
+
+	&::after {
+		position: absolute;
+		top: 5px; right: -5px;
+		padding: 2px 10px;
+		border-radius: 2px;
+		color: whitesmoke;
+		content: ${ ({variant}) => {
+			if ( variant === 'default' ) return ""
+			if ( variant === "new-release" ) return `"${variant}!"`
+			if ( variant === "on-sale" ) return `"${variant}"`
+		}};
+		background-color: ${ props => {
+			if (props.variant === 'new-release') return "#6868d9"
+			if (props.variant === 'on-sale') return "#c52a5f"
+			else return ""
+		}};
+	}
+	
+`;
 
 const ImageWrapper = styled.div`
   position: relative;
+	line-height: 0;
 `;
 
-const Image = styled.img``;
+const Image = styled.img`
+	max-width: 300px;
+`;
 
 const Row = styled.div`
   font-size: 1rem;
+	
+	display: flex;
+	justify-content: space-between;
 `;
 
 const Name = styled.h3`
@@ -72,7 +99,18 @@ const Name = styled.h3`
   color: ${COLORS.gray[900]};
 `;
 
-const Price = styled.span``;
+const Price = styled.span`
+	position: relative;
+	
+	text-decoration: ${ p => p.sale ? "line-through" : "inherited" };
+	color: ${ p => p.sale ? "grey" : "inherited"};
+
+	&::before {
+		position: absolute; bottom: -20px;
+		content: ${ p => p.sale ? `"${p.sale}"` : "" };
+		color: ${ p => p.sale ? 'red' : "inherited" }
+	}
+`;
 
 const ColorInfo = styled.p`
   color: ${COLORS.gray[700]};
